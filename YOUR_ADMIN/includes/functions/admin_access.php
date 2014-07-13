@@ -1,10 +1,10 @@
 <?php
 /**
  * @package Admin Access Management
- * @copyright Copyright 2003-2011 Zen Cart Development Team
+ * @copyright Copyright 2003-2014 Zen Cart Development Team
  * @copyright Portions Copyright 2003 osCommerce
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
- * @version $Id: admin_access.php 20008 2011-11-22 19:25:27Z drbyte $
+ * @version GIT: $Id: Author: DrByte Fri Jun 13 2014  Modified in v1.5.3 $
  */
 
 /**
@@ -14,7 +14,7 @@
  */
 function check_page($page, $params) {
   global $db;
-
+  if (!isset($_SESSION['admin_id'])) return FALSE;
   // Most entries (normal case) have their own pages. However, everything on the Configuration
   // and Modules menus are handled by the single pages configuration.php and modules.php. So for
   // these pages we check their respective get params too.
@@ -30,24 +30,38 @@ function check_page($page, $params) {
           FROM " . TABLE_ADMIN . " a
           LEFT JOIN " . TABLE_ADMIN_PAGES_TO_PROFILES . " ap2p ON ap2p.profile_id = a.admin_profile
           LEFT JOIN " . TABLE_ADMIN_PAGES . " ap ON ap.page_key = ap2p.page_key
-          WHERE admin_id = :adminId:";
+          WHERE admin_id = :adminId:
+          AND ap2p.page_key NOT LIKE '_productTypes_%'";
   $sql = $db->bindVars($sql, ':adminId:', $_SESSION['admin_id'], 'integer');
   $result = $db->Execute($sql);
-
   $retVal = FALSE;
   while (!$result->EOF) {
-    if (constant($result->fields['main_page']) == $page && $result->fields['page_params'] == $page_params) {
+    if ($result->fields['main_page'] != '' && defined($result->fields['main_page']) && (constant($result->fields['main_page']) == $page || constant($result->fields['main_page']) . '.php' == $page) && $result->fields['page_params'] == $page_params) {
       $retVal = TRUE;
     }
     $result->MoveNext();
   }
-
+  if (!$retVal)
+  {
+    $sql = "SELECT *
+            FROM " . TABLE_ADMIN . " a
+            LEFT JOIN " . TABLE_ADMIN_PAGES_TO_PROFILES . " ap2p ON ap2p.profile_id = a.admin_profile
+            WHERE admin_id = :adminId:";
+    $sql = $db->bindVars($sql, ':adminId:', $_SESSION['admin_id'], 'integer');
+    $result = $db->Execute($sql);
+    while (!$result->EOF) {
+      $adjustedPageKey = preg_replace('/_productTypes_/', '', $result->fields['page_key']);
+      if ($adjustedPageKey == $page) $retVal = TRUE;
+      $result->MoveNext();
+    }
+  }
   return $retVal;
 }
 
 function zen_is_superuser()
 {
   global $db;
+  if (!isset($_SESSION['admin_id'])) return FALSE;
   $sql = 'SELECT admin_id from ' . TABLE_ADMIN . '
           WHERE admin_id = :adminId:
           AND admin_profile = ' . SUPERUSER_PROFILE;
@@ -151,7 +165,7 @@ function zen_insert_user($name, $email, $password, $confirm, $profile)
                 last_modified = now()";
     $sql = $db->bindVars($sql, ':name:', $name, 'string');
     $sql = $db->bindVars($sql, ':email:', $email, 'string');
-    $sql = $db->bindVars($sql, ':password:', zen_encrypt_password($password), 'string');
+    $sql = $db->bindVars($sql, ':password:', password_hash($password, PASSWORD_DEFAULT), 'string');
     $sql = $db->bindVars($sql, ':profile:', $profile, 'integer');
     $db->Execute($sql);
 
@@ -214,8 +228,8 @@ function zen_update_user($name, $email, $id, $profile)
     if (isset($changes['email'])) $alertText .= sprintf(TEXT_EMAIL_ALERT_ADM_EMAIL_CHANGED, $oldData['admin_name'], $changes['email']['old'], $changes['email']['new'], $admname) . "\n";
     if (isset($changes['name'])) $alertText .= sprintf(TEXT_EMAIL_ALERT_ADM_NAME_CHANGED, $oldData['admin_name'], $changes['name']['old'], $changes['name']['new'], $admname) . "\n";
     if (isset($changes['profile'])) $alertText .= sprintf(TEXT_EMAIL_ALERT_ADM_PROFILE_CHANGED, $oldData['admin_name'], $changes['profile']['old'], $changes['profile']['new'], $admname) . "\n";
-    if ($alertText != '') zen_mail(STORE_OWNER_EMAIL_ADDRESS, STORE_OWNER_EMAIL_ADDRESS, TEXT_EMAIL_SUBJECT_ADMIN_USER_CHANGED, $alertText, STORE_NAME, EMAIL_FROM, array(), 'admin_settings_changed');
-    if ($alertText != '') zen_mail($oldData['admin_email'], $oldData['admin_email'], TEXT_EMAIL_SUBJECT_ADMIN_USER_CHANGED, $alertText, STORE_NAME, EMAIL_FROM, array(), 'admin_settings_changed');
+    if ($alertText != '') zen_mail(STORE_OWNER_EMAIL_ADDRESS, STORE_OWNER_EMAIL_ADDRESS, TEXT_EMAIL_SUBJECT_ADMIN_USER_CHANGED, $alertText, STORE_NAME, EMAIL_FROM, array('EMAIL_MESSAGE_HTML' => $alertText, 'EMAIL_SPAM_DISCLAIMER'=>' ', 'EMAIL_DISCLAIMER' => ' '), 'admin_settings_changed');
+    if ($alertText != '') zen_mail($oldData['admin_email'], $oldData['admin_email'], TEXT_EMAIL_SUBJECT_ADMIN_USER_CHANGED, $alertText, STORE_NAME, EMAIL_FROM, array('EMAIL_MESSAGE_HTML' => $alertText, 'EMAIL_SPAM_DISCLAIMER'=>' ', 'EMAIL_DISCLAIMER' => ' '), 'admin_settings_changed');
   }
   return $errors;
 }
@@ -308,12 +322,18 @@ function zen_validate_user_login($admin_name, $admin_pass)
       $error = true;
       $expired = true;
       $message = TEXT_TEMPORARY_PASSWORD_MUST_BE_CHANGED;
-    } else if (!zen_validate_password($admin_pass, $result['admin_pass']))
-    {
-      $error = true;
-      if (!$expired) $message = ERROR_WRONG_LOGIN;
-    }
+    } else {
+      $token = $result['admin_pass'];
+      if (!zen_validate_password($admin_pass, $token))
 
+      {
+        $error = true;
+        if (!$expired) $message = ERROR_WRONG_LOGIN;
+      }
+    }
+    if (password_needs_rehash($token, PASSWORD_DEFAULT)) {
+      $token = zcPassword::getInstance(PHP_VERSION)->updateNotLoggedInAdminPassword($admin_pass, $admin_name);
+    }
     // BEGIN 2-factor authentication
     if ($error == FALSE && defined('ZC_ADMIN_TWO_FACTOR_AUTHENTICATION_SERVICE') && ZC_ADMIN_TWO_FACTOR_AUTHENTICATION_SERVICE != '')
     {
@@ -361,12 +381,18 @@ function zen_validate_user_login($admin_name, $admin_pass)
       }
     }
   } // END LOGIN SLAM PREVENTION
-  // deal with expireds
-  if ($error == FALSE && $result['pwd_last_change_date'] < date('Y-m-d H:i:s', ADMIN_PASSWORD_EXPIRES_INTERVAL))
+  // deal with expireds for SSL change
+  if ($error == FALSE && $result['pwd_last_change_date']  == '1990-01-01 14:02:22')
   {
     $expired = true;
     $error = true;
-    if ($result['pwd_last_change_date']  == '1990-01-01 14:02:22') $message = ($message == '' ? '' : $message . '<br /><br />') . EXPIRED_DUE_TO_SSL;
+    $message = ($message == '' ? '' : $message . '<br /><br />') . EXPIRED_DUE_TO_SSL;
+  }
+  // deal with expireds for PA-DSS
+  if ($error == FALSE && PADSS_PWD_EXPIRY_ENFORCED == 1 && $result['pwd_last_change_date'] < date('Y-m-d H:i:s', ADMIN_PASSWORD_EXPIRES_INTERVAL))
+  {
+    $expired = true;
+    $error = true;
   }
   if ($error == false)
   {
@@ -408,18 +434,19 @@ function zen_check_for_password_problems($password, $adminID = 0)
   $minLength = (int)ADMIN_PASSWORD_MIN_LENGTH < 7 ? 7 : (int)ADMIN_PASSWORD_MIN_LENGTH;
 
   // admin passwords must contain at least 1 letter and 1 number and be of required minimum length
-  if (!preg_match('/^(?=.*[a-zA-Z]+.*)(?=.*[\d]+.*)[\d\w[:punct:]]{' . $minLength . ',}$/', $password)) {
+  if (!preg_match('/^(?=.*[a-zA-Z]+.*)(?=.*[\d]+.*)[\d\w\s[:punct:]]{' . $minLength . ',}$/', $password)) {
     $error = TRUE;
   }
   // if no user specified, skip checking history
   if ($adminID == 0) return $error;
   // passwords cannot be same as last 4
+  if (PADSS_PWD_EXPIRY_ENFORCED == 0) return $error; // skip the check if flag disabled
   $sql = "SELECT admin_pass, prev_pass1, prev_pass2, prev_pass3 FROM " . TABLE_ADMIN . "
           WHERE admin_id = :adminID:";
   $sql = $db->bindVars($sql, ':adminID:', $adminID, 'integer');
   $result = $db->Execute($sql);
   if ($result->RecordCount()) {
-    foreach($result->fields as $val) {
+    foreach($result->fields as $key => $val) {
       if (zen_validate_password($password, $val)) {
         $error = TRUE;
       }
@@ -430,11 +457,12 @@ function zen_check_for_password_problems($password, $adminID = 0)
 
 /**
  * Check whether the specified admin user's password expired more than 90 days ago
- * THIS IS A PA-DSS REQUIREMENT AND MUST NOT BE CHANGED
+ * THIS IS A PA-DSS REQUIREMENT AND MUST NOT BE CHANGED WITHOUT VOIDING COMPLIANCE
  *
  * @param string $adminID
  */
 function zen_check_for_expired_pwd ($adminID) {
+  if (PADSS_PWD_EXPIRY_ENFORCED == 0) return;
   global $db;
   $sql = "SELECT admin_id FROM " . TABLE_ADMIN . "
           WHERE admin_id = :adminID:
@@ -464,12 +492,12 @@ function zen_reset_password($id, $password, $compare)
   }
   if (sizeof($errors) == 0)
   {
-    $encryptedPassword = zen_encrypt_password($password);
+    $encryptedPassword = password_hash($password, PASSWORD_DEFAULT);
     $sql = "UPDATE " . TABLE_ADMIN . "
             SET prev_pass3 = prev_pass2, prev_pass2 = prev_pass1, prev_pass1 = admin_pass, admin_pass = :newpwd:, pwd_last_change_date = now()
             WHERE admin_id = :adminID:";
     $sql = $db->bindVars($sql, ':adminID:', $id, 'integer');
-    $sql = $db->bindVars($sql, ':newpwd:', zen_encrypt_password($password), 'string');
+    $sql = $db->bindVars($sql, ':newpwd:', $encryptedPassword, 'string');
     $db->Execute($sql);
   }
   return $errors;
@@ -607,6 +635,13 @@ function zen_get_admin_pages($menu_only)
   /**
    * First we'll get all the pages
    */
+  $sql = "SELECT * FROM " . TABLE_PRODUCT_TYPES . " WHERE type_handler != 'product'";
+  $result = $db->Execute($sql);
+  while (!$result->EOF)
+  {
+    $productTypes['_productTypes_'.$result->fields['type_handler']] = array('name'=>$result->fields['type_name'], 'file'=>$result->fields['type_handler'], 'params'=>'');
+    $result->MoveNext();
+  }
   $sql = "SELECT ap.menu_key, ap.page_key, ap.main_page, ap.page_params, ap.language_key as page_name
           FROM " . TABLE_ADMIN_PAGES . " ap
           LEFT JOIN " . TABLE_ADMIN_MENUS . " am ON am.menu_key = ap.menu_key ";
@@ -619,10 +654,20 @@ function zen_get_admin_pages($menu_only)
       $retVal[$result->fields['menu_key']][$result->fields['page_key']] = array('name' => constant($result->fields['page_name']),
                                                                                 'file' => constant($result->fields['main_page']),
                                                                                 'params' => $result->fields['page_params']);
+
     }
     $result->MoveNext();
   }
-
+  if (!$menu_only)
+  {
+    foreach ($productTypes as $pageName => $productType)
+    {
+      if (!isset($retVal['_productTypes']['_productTypes_'.$pageName]))
+      {
+        $retVal['_productTypes'][$pageName] = $productType;
+      }
+    }
+  }
   /**
    * Then we'll deal with the exceptions
    */
@@ -798,6 +843,7 @@ function zen_get_menu_titles()
     $retVal[$result->fields['menu_key']] = constant($result->fields['language_key']);
     $result->MoveNext();
   }
+  $retVal['_productTypes'] = BOX_HEADING_PRODUCT_TYPES;
   return $retVal;
 }
 

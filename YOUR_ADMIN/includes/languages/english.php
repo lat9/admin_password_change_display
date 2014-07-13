@@ -1,10 +1,10 @@
 <?php
 /**
  * @package admin
- * @copyright Copyright 2003-2011 Zen Cart Development Team
+ * @copyright Copyright 2003-2013 Zen Cart Development Team
  * @copyright Portions Copyright 2003 osCommerce
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
- * @version $Id: english.php 19537 2011-09-20 17:14:44Z drbyte $
+ * @version GIT: $Id: Author: DrByte  Mon Oct 28 23:52:35 2013 -0400 Modified in v1.5.2 $
  */
 if (!defined('IS_ADMIN_FLAG'))
 {
@@ -16,16 +16,20 @@ define('HEADER_ALT_TEXT', 'Admin Powered by Zen Cart :: The Art of E-Commerce');
 define('HEADER_LOGO_WIDTH', '200px');
 define('HEADER_LOGO_HEIGHT', '70px');
 define('HEADER_LOGO_IMAGE', 'logo.gif');
-
+//-bof-lat9 New constants
+define('TEXT_PASSWORD_LAST_CHANGE', 'Password changed on:&nbsp;&nbsp;&nbsp;');
+define('TEXT_LAST_LOGIN_INFO', 'Last login date [IP]:&nbsp;&nbsp;&nbsp;');
+//-eof-lat9 New constants
 // look in your $PATH_LOCALE/locale directory for available locales..
-setlocale(LC_TIME, 'en_US');
+$locales = array('en_US', 'en_US.utf8', 'en', 'English_United States.1252');
+@setlocale(LC_TIME, $locales);
 define('DATE_FORMAT_SHORT', '%m/%d/%Y');  // this is used for strftime()
 define('DATE_FORMAT_LONG', '%A %d %B, %Y'); // this is used for strftime()
 define('DATE_FORMAT', 'm/d/Y'); // this is used for date()
 define('PHP_DATE_TIME_FORMAT', 'm/d/Y H:i:s'); // this is used for date()
 define('DATE_TIME_FORMAT', DATE_FORMAT_SHORT . ' %H:%M:%S');
 define('DATE_FORMAT_SPIFFYCAL', 'MM/dd/yyyy');  //Use only 'dd', 'MM' and 'yyyy' here in any order
-
+define('ADMIN_NAV_DATE_TIME_FORMAT', '%A %d %b %Y %X'); // this is used for strftime()
 ////
 // Return date in raw format
 // $date should be in format mm/dd/yyyy
@@ -83,8 +87,7 @@ define('HEADER_TITLE_LOGOFF', 'Logoff');
 define('MALE', 'Male');
 define('FEMALE', 'Female');
 
-// text for date of birth example
-define('DOB_FORMAT_STRING', 'mm/dd/yyyy');
+define('NONE', 'None');
 
 // configuration box text
 define('BOX_HEADING_CONFIGURATION', 'Configuration');
@@ -239,7 +242,7 @@ define('JS_EMAIL_ADDRESS', '* The \'E-Mail Address\' entry must have at least ' 
 define('JS_ADDRESS', '* The \'Street Address\' entry must have at least ' . ENTRY_STREET_ADDRESS_MIN_LENGTH . ' characters.\n');
 define('JS_POST_CODE', '* The \'Post Code\' entry must have at least ' . ENTRY_POSTCODE_MIN_LENGTH . ' characters.\n');
 define('JS_CITY', '* The \'City\' entry must have at least ' . ENTRY_CITY_MIN_LENGTH . ' characters.\n');
-define('JS_STATE', '* The \'State\' entry is must be selected.\n');
+define('JS_STATE', '* The \'State\' entry must be selected.\n');
 define('JS_STATE_SELECT', '-- Select Above --');
 define('JS_ZONE', '* The \'State\' entry must be selected from the list for this country.');
 define('JS_COUNTRY', '* The \'Country\' value must be chosen.\n');
@@ -291,7 +294,7 @@ define('ENTRY_NEWSLETTER_ERROR', '');
 
 define('ERROR_PASSWORDS_NOT_MATCHING', 'Password and confirmation must match');
 define('ENTRY_PASSWORD_CHANGE_ERROR', '<strong>Sorry, your new password was rejected.</strong><br />');
-define('ERROR_PASSWORD_RULES', 'Passwords must contain both letters and numbers, must be at least %s characters long, and must not be the same as the last 4 passwords used. Passwords expire every 90 days.');
+define('ERROR_PASSWORD_RULES', 'Passwords must contain both letters and numbers, must be at least %s characters long, and must not be the same as the last 4 passwords used. Passwords expire every 90 days, after which you will be prompted to choose a new password.');
 define('ERROR_TOKEN_EXPIRED_PLEASE_RESUBMIT', 'ERROR: Sorry, there was an error processing your data. Please re-submit the information again.');
 
 // images
@@ -443,7 +446,7 @@ define('ERROR_FILETYPE_NOT_ALLOWED', 'Error: File upload type not allowed  %s');
 define('SUCCESS_FILE_SAVED_SUCCESSFULLY', 'Success: File upload saved successfully %s');
 define('WARNING_NO_FILE_UPLOADED', 'Warning: No file uploaded.');
 define('WARNING_FILE_UPLOADS_DISABLED', 'Warning: File uploads are disabled in the php.ini configuration file.');
-define('ERROR_ADMIN_SECURITY_WARNING', 'Warning: Your Admin login is not secure ... either you still have default login settings for: Admin admin or have not removed or changed: demo demoonly<br />The login(s) should be changed as soon as possible for the Security of your Shop<br />Go to Tools->Admin Settings to change login IDs and passwords.<br />For additional Security for the Admin please see the /docs');
+define('ERROR_ADMIN_SECURITY_WARNING', 'Warning: Your Admin login is not secure ... either you still have default login settings for: Admin admin or have not removed or changed: demo demoonly<br />The login(s) should be changed as soon as possible for the Security of your shop.');
 define('WARNING_DATABASE_VERSION_OUT_OF_DATE','Your database appears to need patching to a higher level. See Tools->Server Information to review patch levels.');
 define('WARN_DATABASE_VERSION_PROBLEM','true'); //set to false to turn off warnings about database version mismatches
 define('WARNING_ADMIN_DOWN_FOR_MAINTENANCE', '<strong>WARNING:</strong> Site is currently set to Down for Maintenance ...<br />NOTE: You cannot test most Payment and Shipping Modules in Maintenance mode');
@@ -576,6 +579,7 @@ define('TEXT_LEGEND_STATUS_ON', 'Status ON ');
 define('TEXT_INFO_MASTER_CATEGORIES_ID', '<strong>NOTE: Master Category is used for pricing purposes where the<br />product category affects the pricing on linked products, example: Sales</strong>');
 define('TEXT_YES', 'Yes');
 define('TEXT_NO', 'No');
+define('TEXT_CANCEL', 'Cancel');
 
 // shipping error messages
 define('ERROR_SHIPPING_CONFIGURATION', '<strong>Shipping Configuration errors!</strong>');
@@ -623,8 +627,8 @@ define('PRODUCTS_QUANTITY_MAX_TEXT_LISTING', 'Max:');
 
 // Rich Text / HTML resources
 define('TEXT_HTML_EDITOR_NOT_DEFINED','If you have no HTML editor defined or JavaScript disabled, you may enter raw HTML text here manually.');
-define('TEXT_WARNING_HTML_DISABLED','<span class = "main">Note: You are using TEXT only email. If you would like to send HTML you need to enable "use MIME HTML" under Email Options</span>');
-define('TEXT_WARNING_CANT_DISPLAY_HTML','<span class = "main">Note: You are using TEXT only email. If you would like to send HTML you need to enable "use MIME HTML" under Email Options</span>');
+define('TEXT_WARNING_HTML_DISABLED','<span class = "main">Note: You are using TEXT only email. If you would like to send HTML you need to enable "Enable HTML Emails" under Email Options</span>');
+define('TEXT_WARNING_CANT_DISPLAY_HTML','<span class = "main">Note: You are using TEXT only email. If you would like to send HTML you need to enable "Enable HTML Emails" under Email Options</span>');
 define('TEXT_EMAIL_CLIENT_CANT_DISPLAY_HTML',"You're seeing this text because we sent you an email in HTML format but your email client cannot display HTML messages.");
 define('ENTRY_EMAIL_PREFERENCE','Email Format Pref:');
 define('ENTRY_EMAIL_FORMAT_COMMENTS','Choosing "none" or "optout" disables ALL mail, including order details');
@@ -718,10 +722,11 @@ define('TEXT_HIDE', 'Hide');
 define('TEXT_EMAIL', 'Email');
 define('TEXT_NOEMAIL', 'No Email');
 
-//-bof-lat9 New constants
-define('TEXT_PASSWORD_LAST_CHANGE', 'Password changed on:&nbsp;&nbsp;&nbsp;');
-define('TEXT_LAST_LOGIN_INFO', 'Last login date [IP]:&nbsp;&nbsp;&nbsp;');
-//-eof-lat9 New constants
+define('BOX_HEADING_PRODUCT_TYPES', 'Product Types');
+
+define('ERROR_DATABASE_MAINTENANCE_NEEDED', '<a href="http://www.zen-cart.com/content.php?334-ERROR-0071-There-appears-to-be-a-problem-with-the-database-Maintenance-is-required" target="_blank">ERROR 0071: There appears to be a problem with the database. Maintenance is required.</a>');
+
+
 ///////////////////////////////////////////////////////////
 // include additional files:
   require(DIR_WS_LANGUAGES . $_SESSION['language'] . '/' . FILENAME_EMAIL_EXTRAS);
