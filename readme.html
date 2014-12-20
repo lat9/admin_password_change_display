@@ -36,6 +36,8 @@ code {
 ol li {
   margin-left: 0;
 }
+.smaller { font-size: smaller; }
+.corefile { color: red; }
 -->
 </style>
 </head>
@@ -43,26 +45,37 @@ ol li {
 <body>
 <a name="top" id="top"></a>
 <h1>Admin Password Change Display for Zen Cart</h1>
-<h3>Version 1.1.1</h3>
-<p>Current Support Thread at Zen Cart Forums: <a href="http://www.zen-cart.com/forum/showthread.php?t=192388">http://www.zen-cart.com/forum/showthread.php?t=169227</a>.  This software is provided for your use under the GNU General Public License.</p>
+<h3>Version 1.1.2</h3>
+<p>Current Support Thread at Zen Cart Forums: <a href="http://www.zen-cart.com/forum/showthread.php?t=192388">http://www.zen-cart.com/forum/showthread.php?t=169227</a>.  This software is provided for your use under the GNU General Public License v2.</p>
 <h2>Version History:</h2>
 <ul>
-<li>v1.0.0, 2012-02-12, Initial release.</li>
-<li>v1.0.1, 2012-02-18, Added license information.</li>
-<li>v1.1.0, 2012-02-22, Display now includes the last login date and IP address for the currently signed-in admin.</li>
-<li>v1.1.1, 2014-07-10, Upgraded for Zen Cart 1.5.3 by PRO-Webs.net
+  <li>v1.0.0, 2012-02-12, Initial release.</li>
+  <li>v1.0.1, 2012-02-18, Added license information.</li>
+  <li>v1.1.0, 2012-02-22, Display now includes the last login date and IP address for the currently signed-in admin.</li>
+  <li>v1.1.1, 2014-07-10, Upgraded for Zen Cart 1.5.3 by PRO-Webs.net</li>
+  <li>v1.1.2, 2014-12-20, Include Zen Cart v1.5.4 updates:<ul>
+    <li>/YOUR_ADMIN/includes/header.php</li>
+    <li>/YOUR_ADMIN/includes/auto_loaders/config.zc154_compatibility.php</li>
+    <li>/YOUR_ADMIN/includes/functions/admin_access.php <span class="smaller">(This is now based on the Zen Cart v1.5.4 version of the file)</span></li>
+    <li>/YOUR_ADMIN/includes/init_includes/init_zc154_compatibility.php</li>
+    <li>/YOUR_ADMIN/includes/languages/english.php <span class="smaller">(This is now based on the Zen Cart v1.5.4 version of the file)</span>
+    <li>/YOUR_ADMIN/includes/languages/english/email_extras.php <span class="smaller">(This is the Zen Cart v1.5.4 version of the file)</span></li>
+  </ul></li>
 </ul>
 <h2>What it does</h2>
 <p>This add-on displays text within your admin page's header to let the signed-on admin know when his/her password was last changed, giving them some amount of implicit warning as to the need to change their password.  The display (as of v1.1.0) also includes the admin's previous login date and IP address from which the admin logged in.</p>
 <p>Here is an example of the display:</p>
 <img src="header_image.jpg" alt="Header Image" title="Admin Header Display" />
 <h2>Installation</h2>
-<p>There are three core-file overwrites in this mod; you should <strong>always</strong> backup your cart&rsquo;s database and files prior to making any changes.</p>
+<p>There are four core-file overwrites in this mod; you should <strong>always</strong> backup your cart&rsquo;s database and files prior to making any changes.</p>
 <p>Copy the admin files to your cart, after renaming the &quot;YOUR_ADMIN&quot; directory to match your custom admin&rsquo;s name:</p>
 <ol>
-<li>/YOUR_ADMIN/includes/header.php</li>
-<li>/YOUR_ADMIN/includes/functions/admin_access.php</li>
-<li>/YOUR_ADMIN/includes/languages/english.php</li>
+  <li><span class="corefile">/YOUR_ADMIN/includes/header.php</span></li>
+  <li>/YOUR_ADMIN/includes/auto_loaders/config.zc154_compatibility.php</li>
+  <li><span class="corefile">/YOUR_ADMIN/includes/functions/admin_access.php</span></li>
+  <li>/YOUR_ADMIN/includes/init_includes/init_zc154_compatibility.php</li>
+  <li><span class="corefile">/YOUR_ADMIN/includes/languages/english.php</span></li>
+  <li><span class="corefile">/YOUR_ADMIN/includes/languages/english/email_extras.php</span></li>
 </ol>
 <p><b>Note:</b> If you have made previous modifications to these core-files, you will need to use WinMerge (or an equivalent program) to merge the changes.  All changes for this add-on are tagged with <em>//-bof-lat9</em> and <em>//-eof-lat9</em>.</p>
 </body>
