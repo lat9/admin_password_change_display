@@ -87,6 +87,8 @@ define('HEADER_TITLE_LOGOFF', 'Logoff');
 define('MALE', 'Male');
 define('FEMALE', 'Female');
 
+define('TEXT_CHECK_ALL', 'Check All');
+define('TEXT_UNCHECK_ALL', 'Uncheck All');
 define('NONE', 'None');
 
 // configuration box text
@@ -249,6 +251,7 @@ define('JS_COUNTRY', '* The \'Country\' value must be chosen.\n');
 define('JS_TELEPHONE', '* The \'Telephone Number\' entry must have at least ' . ENTRY_TELEPHONE_MIN_LENGTH . ' characters.\n');
 
 define('JS_ORDER_DOES_NOT_EXIST', 'Order Number %s does not exist!');
+define('TEXT_NO_ORDER_HISTORY', 'No Order History Available');
 
 define('CATEGORY_PERSONAL', 'Personal');
 define('CATEGORY_ADDRESS', 'Address');
@@ -346,6 +349,7 @@ define('IMAGE_PERMISSIONS', 'Edit Permissions');
 define('IMAGE_PREVIEW', 'Preview');
 define('IMAGE_RESTORE', 'Restore');
 define('IMAGE_RESET', 'Reset');
+define('IMAGE_RESET_PWD', 'Reset Password');
 define('IMAGE_SAVE', 'Save');
 define('IMAGE_SEARCH', 'Search');
 define('IMAGE_SELECT', 'Select');
@@ -432,9 +436,6 @@ define('TEXT_FIELD_REQUIRED', '&nbsp;<span class="fieldRequired">* Required</spa
 
 define('ERROR_NO_DEFAULT_CURRENCY_DEFINED', 'Error: There is currently no default currency set. Please set one at: Administration Tools->Localization->Currencies');
 
-define('TEXT_CACHE_CATEGORIES', 'Categories Box');
-define('TEXT_CACHE_MANUFACTURERS', 'Manufacturers Box');
-define('TEXT_CACHE_ALSO_PURCHASED', 'Also Purchased Module');
 
 define('TEXT_NONE', '--none--');
 define('TEXT_TOP', 'Top');
@@ -518,7 +519,7 @@ define('NOT_INSTALLED_TEXT','Not Installed');
   define('IMAGE_UPDATE_SORT','Update Sort Order');
   define('IMAGE_EDIT_PRODUCT','Edit Product');
   define('IMAGE_EDIT_ATTRIBUTES','Edit Attributes');
-  define('TEXT_NEW_PRODUCT', 'Product in Category: &quot;%s&quot;');
+  define('TEXT_NEW_PRODUCT', 'Product in Category: %s');
   define('IMAGE_OPTIONS_VALUES','Option Names and Option Values');
   define('TEXT_PRODUCTS_PRICE_MANAGER','PRODUCTS PRICE MANAGER');
   define('TEXT_PRODUCT_EDIT','EDIT PRODUCT');
@@ -653,7 +654,7 @@ define('ENTRY_NOTHING_TO_SEND','You haven\'t entered any content for your messag
   define('TEXT_SORT_CATEGORIES_SORT_ORDER_PRODUCTS_NAME', 'Categories Sort Order, Categories Name');
   define('TEXT_SORT_CATEGORIES_NAME', 'Categories Name');
 
-
+  define('TEXT_SELECT_MAIN_DIRECTORY', 'Main Image Directory');
 
   define('TABLE_HEADING_YES','Yes');
   define('TABLE_HEADING_NO','No');
@@ -733,6 +734,10 @@ define('BOX_HEADING_PRODUCT_TYPES', 'Product Types');
 
 define('ERROR_DATABASE_MAINTENANCE_NEEDED', '<a href="http://www.zen-cart.com/content.php?334-ERROR-0071-There-appears-to-be-a-problem-with-the-database-Maintenance-is-required" target="_blank">ERROR 0071: There appears to be a problem with the database. Maintenance is required.</a>');
 
+// moved from currencies file:
+define('TEXT_INFO_CURRENCY_UPDATED', 'The exchange rate for %s (%s) was updated successfully to %s via %s.');
+define('ERROR_CURRENCY_INVALID', 'Error: The exchange rate for %s (%s) was not updated via %s. Is it a valid currency code?');
+define('WARNING_PRIMARY_SERVER_FAILED', 'Warning: The primary exchange rate server (%s) failed for %s (%s) - trying the secondary exchange rate server.');
 
 ///////////////////////////////////////////////////////////
 // include additional files:
