@@ -49,6 +49,9 @@ if ((basename($PHP_SELF) != FILENAME_DEFINE_LANGUAGE . '.php') and (basename($PH
   $hide_languages= true;
 } // hide when other language dropdown is used
 
+//-bof-admin_password_change_display-lat9  *** 1 of 4 ***
+if (version_compare (PROJECT_VERSION_MAJOR . '.' . PROJECT_VERSION_MINOR, '1.5.5', '<')) {
+//-eof-admin_password_change_display-lat9  *** 1 of 4 ***
 // check database version against source code
   $zv_db_patch_ok = true; // we start with true
   if (WARN_DATABASE_VERSION_PROBLEM != 'false') {
@@ -116,6 +119,9 @@ if ((basename($PHP_SELF) != FILENAME_DEFINE_LANGUAGE . '.php') and (basename($PH
       }
     }
   }
+//-bof-admin_password_change_display-lat9  *** 2 of 4 ***
+}
+//-eof-admin_password_change_display-lat9  *** 2 of 4 ***
 
 // display alerts/error messages, if any
   if ($messageStack->size > 0) {
@@ -214,7 +220,7 @@ if ((basename($PHP_SELF) != FILENAME_DEFINE_LANGUAGE . '.php') and (basename($PH
     <td align="right" class="main version-notify noprint" valign="top"><?php echo $new_version; ?><br /><?php echo '(' . TEXT_CURRENT_VER_IS . ' v' . PROJECT_VERSION_MAJOR . '.' . PROJECT_VERSION_MINOR . (PROJECT_VERSION_PATCH1 != '' ? 'p' . PROJECT_VERSION_PATCH1 : '') . ')'; ?></td>
 <?php
   }
-//-bof-lat9 Display last password change and login
+//-bof-admin_password_change_display-lat9  *** 3 of 4 *** Display last password change and login
   if (function_exists('zen_get_admin_name') && function_exists('zen_read_user')) {
     $adminInfo = zen_read_user(zen_get_admin_name($_SESSION['admin_id']));
 ?>
@@ -226,7 +232,7 @@ if ((basename($PHP_SELF) != FILENAME_DEFINE_LANGUAGE . '.php') and (basename($PH
     <td align="right" class="main" valign="top"><?php echo TEXT_LAST_LOGIN_INFO . $_SESSION['last_login_date'] . ' [' . $_SESSION['last_login_ip'] . ']'; ?></td>
 <?php
   }
-//-eof-lat9
+//-eof-admin_password_change_display-lat9  *** 3 of 4 ***
 ?>
     </tr></table></td>
   </tr>
@@ -240,7 +246,7 @@ if ((basename($PHP_SELF) != FILENAME_DEFINE_LANGUAGE . '.php') and (basename($PH
         echo zen_draw_form('languages', basename($PHP_SELF), '', 'get');
         echo DEFINE_LANGUAGE . '&nbsp;&nbsp;' . (sizeof($languages) > 1 ? zen_draw_pull_down_menu('language', $languages_array, $languages_selected, 'onChange="this.form.submit();"') : '');
         echo zen_hide_session_id();
-        if (function_exists ('zen_post_all_get_params')) echo zen_post_all_get_params(array('language'));  //-bof-lat9-Make sure function exists before using!
+        if (function_exists ('zen_post_all_get_params')) echo zen_post_all_get_params(array('language'));  //-admin_password_change_display-lat9  *** 4 of 4 ***  Make sure function exists before using!
         echo '</form>';
       } else {
         echo '&nbsp;';
